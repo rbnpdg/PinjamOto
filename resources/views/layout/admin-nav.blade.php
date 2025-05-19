@@ -1,98 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin-top: 5%;
-        }
-        .navbar-brand {
-            margin-left: 5%;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: bold;
-        }
-        .navbar-nav .nav-link {
-            font-family: 'Montserrat', sans-serif;
-            font-weight: bold;
-            color: white;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-        .navbar-nav .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0px;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background-color: white;
-            transition: width 0.3s ease;
-        }
-        .navbar-nav .nav-link:hover::after {
-            width: 100%;
-        }
-        .navbar-nav .nav-link:hover {
-            color: #fff;
-        }
-        .navbar-nav .active::after {
-            width: 100%;
-        }
-        .navbar-custom {
-            background-color:#0f2b5a;
-        }
-        form {
-            margin-bottom: 10%;
-        }
-        .main-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: calc(100vh - 50px);
-            flex-direction: column;
-            text-align: center;
-            margin-top: 60px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet"/>
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .wrapper {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      height: 100vh;
+      background-color: #0f2b5a;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 60px;
+    }
+
+    .sidebar a {
+      color: white;
+      padding: 15px;
+      display: block;
+      text-decoration: none;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #1a3a72;
+    }
+
+    .content {
+      margin-left: 220px;
+      padding: 60px 20px 20px 20px;
+    }
+
+    .navbar-custom {
+      background-color: #0f2b5a;
+    }
+
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 220px;
+      right: 0;
+      width: calc(100% - 220px);
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+    }
+  </style>
 </head>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-        <a class="navbar-brand" href="#">PinjamOto</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="">Daftar Mobil</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="">Transaksi</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="">Customer</a>
-                </li>
-                <li>
-                    <a class="nav-link" href="">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
 
-    <!-- Main Content -->
-    <div class="container mt-4">
-        @yield('content')
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="#">Daftar Mobil</a>
+    <a href="#">Transaksi</a>
+    <a href="#">Customer</a>
+    <a href="#">Logout</a>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <a class="navbar-brand ml-3" href="#">PinjamOto</a>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="content">
+    <div class="container-fluid">
+      @yield('content')
     </div>
+  </div>
 
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
