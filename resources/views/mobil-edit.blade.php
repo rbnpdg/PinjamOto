@@ -1,5 +1,6 @@
 @extends('layout/admin-nav')
 
+@section('content')
 <h2 class="mb-4 text-center">Edit Mobil</h2>
 <div class="d-flex justify-content-center">
     <form action="{{ route('mobil-update', $mobil->id) }}" method="POST" style="width: 50%;">
@@ -35,3 +36,4 @@
         <button type="submit" class="btn btn-primary">Simpan</button>
     </form>
 </div>
+@endsection

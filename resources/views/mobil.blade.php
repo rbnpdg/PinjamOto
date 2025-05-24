@@ -1,5 +1,9 @@
 @extends('layout/admin-nav')
 
+@section('content')
+<div class="card-header pb-0">
+    <h6>Tabel Mobil</h6>
+</div>
 <div class="container mt-5">
         <div class="d-flex justify-content-between mb-3">
             <h2>Data Mobil Rental</h2>
@@ -58,3 +62,4 @@
         });
     }
 </script>
+@endsection

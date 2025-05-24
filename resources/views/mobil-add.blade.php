@@ -1,8 +1,9 @@
 @extends('layout/admin-nav')
 
-<h2 class="mb-4 text-center">Tambah Mobil</h2>
-<div class="d-flex justify-content-center">
-    <form action="{{ route('mobil-store') }}" method="POST" style="width: 50%;">
+@section('content')
+<h2 class="mt-5 mb-4 text-center">Tambah Mobil</h2>
+<div class="d-flex justify-content-center ml-4 mr-4">
+    <form action="{{ route('mobil-store') }}" class="mb-4" method="POST" style="width: 50%;">
         @csrf
         <div class="mb-3">
             <label for="nama" class="form-label">Nama Mobil</label>
@@ -29,7 +30,8 @@
             </select>
         </div>
 
-        <a href="{{ route('dash-admin') }}" class="btn btn-danger">Batal</a>
+        <a href="{{ route('mobil-show') }}" class="btn btn-danger">Batal</a>
         <button type="submit" class="btn btn-primary">Simpan</button>
     </form>
 </div>
+@endsection
