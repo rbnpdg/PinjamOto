@@ -12,8 +12,11 @@ return new class extends Migration
             $table->id();
             $table->string('email')->unique();
             $table->string('username');
+            $table->string('nama');
             $table->string('password');
-            $table->string('role');
+            $table->enum('role', ['Konsumen', 'Admin', 'Owner'])->default('Konsumen');
+            $table->string('telepon')->nullable();
+            $table->text('alamat')->nullable();
             $table->timestamps();
         });
     }

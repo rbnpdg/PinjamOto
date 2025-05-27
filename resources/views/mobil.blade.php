@@ -10,7 +10,7 @@
             <a href="{{ route('mobil-add') }}" class="btn btn-primary py-2">Tambah Mobil</a>
         </div>
         
-        <table class="table table-bordered">
+        <table class="table table-bordered"> 
             <thead class="thead-dark">
                 <tr>
                     <th>No</th>
@@ -38,8 +38,7 @@
                         </form>
                     </td>
                 </tr>
-                @endforeach 
-                <!-- Data lainnya akan di-generate dari backend -->
+                @endforeach
             </tbody>
         </table>
     </div>
@@ -63,3 +62,17 @@
     }
 </script>
 @endsection
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    </script>
+@endif

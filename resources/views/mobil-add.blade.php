@@ -33,5 +33,15 @@
         <a href="{{ route('mobil-show') }}" class="btn btn-danger">Batal</a>
         <button type="submit" class="btn btn-primary">Simpan</button>
     </form>
+        @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonText: 'Tutup'
+            });
+        </script>
+        @endif
 </div>
 @endsection

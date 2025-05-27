@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\mobilController;
 use App\Http\Controllers\loginController;
+use App\Http\Controllers\userController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -28,4 +30,9 @@ Route::get('/mobil/edit/{mobil}', [mobilController::class, 'edit'])->name('mobil
 Route::put('/mobil/update/{mobil}', [mobilController::class, 'update'])->name('mobil-update');
 Route::delete('/mobil/delete/{mobil}', [mobilController::class, 'destroy'])->name('mobil-del');
 
+Route::get('/user', [userController::class, 'show'])->name('user-show');
+Route::get('/user/tambah', [userController::class, 'tambah'])->name('user-add');
+Route::post('/user/store', [userController::class, 'store'])->name('user-store');
+Route::get('/user/edit/{user}', [userController::class, 'edit'])->name('user-edit');
+Route::put('/user/update/{user}', [userController::class, 'update'])->name('user-update');
 

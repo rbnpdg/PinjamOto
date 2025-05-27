@@ -28254,4 +28254,8 @@ pre[class*=language-] {
   }
 }
 
-/*# sourceMappingURL=dashboard-free.css.map */
+/*override css bottom border hilang*/
+table.table-bordered td,
+  table.table-bordered th {
+  border: 1px solid #dee2e6 !important;
+}
