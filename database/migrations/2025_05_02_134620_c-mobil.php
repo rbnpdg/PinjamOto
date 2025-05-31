@@ -13,9 +13,15 @@ return new class extends Migration
     {
         Schema::create('mobil', function (Blueprint $table) {
             $table->id();
+            $table->string('gambar')->nullable();
             $table->string('nama');
             $table->year('tahun');
+            $table->enum('tipe', ['Mpv', 'SUV', 'Sedan','City car'])->nullable();
             $table->string('tnkb')->unique();
+            $table->integer('kapasitas')->nullable();
+            $table->enum('transmisi', ['Manual', 'Otomatis'])->nullable();
+            $table->enum('bbm', ['Bensin', 'Diesel', 'Listrik'])->nullable();
+            $table->decimal('hargasewa', 10);
             $table->enum('status', ['Tersedia', 'Disewa', 'Maintenance'])->default('Tersedia');
             $table->timestamps();
         });
