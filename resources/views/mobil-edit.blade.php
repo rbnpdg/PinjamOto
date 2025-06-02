@@ -3,6 +3,20 @@
 @section('content')
 <h2 class="mb-4 text-center">Edit Mobil</h2>
 <div class="d-flex justify-content-center">
+@if ($errors->any())
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonText: 'Tutup'
+            });
+        });
+    </script>
+@endif
+
+
     <form action="{{ route('mobil-update', $mobil->id) }}" method="POST" style="width: 50%;" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -30,7 +44,7 @@
 
         <div class="mb-3">
             <label for="tnkb" class="form-label">TNKB</label>
-            <input type="text" name="tnkb" id="tnkb" class="form-control" value="{{ old('tnkb', $mobil->tnkb) }}" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase();" required>
+            <input type="text" name="tnkb" id="tnkb" class="form-control" value="{{ old('tnkb', $mobil->tnkb) }}" oninput="this.value = this.value.toUpperCase();" required>
         </div>
 
         <div class="mb-3">

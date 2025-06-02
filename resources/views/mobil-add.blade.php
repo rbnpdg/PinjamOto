@@ -7,7 +7,7 @@
         @csrf
         <div class="mb-3">
             <label for="nama" class="form-label">Nama Mobil</label>
-            <input type="text" name="nama" class="form-control" required>
+            <input type="text" name="nama" class="form-control" oninput="this.value = this.value.toUpperCase()" required>
         </div>
 
         <div class="mb-3">
@@ -28,7 +28,7 @@
 
         <div class="mb-3">
             <label for="tnkb" class="form-label">TNKB</label>
-            <input type="text" name="tnkb" class="form-control" required>
+            <input type="text" name="tnkb" class="form-control" oninput="this.value = this.value.toUpperCase()" required>
         </div>
 
         <div class="mb-3">
