@@ -30,13 +30,25 @@ class loginController extends Controller
         return view('login');
     }
 
-     public function login(Request $request) {
+    public function login(Request $request) {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
         $user = User::where('email', $request->email)->first();
+
+// if (!$user) {
+//     dd('User tidak ditemukan'); // email tidak cocok
+// }
+
+// if (!Hash::check($request->password, $user->password)) {
+//     dd('Password tidak cocok', [
+//         'input_password' => $request->password,
+//         'hashed' => $user->password
+//     ]);
+// }
+
 
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
@@ -46,8 +58,10 @@ class loginController extends Controller
                 return redirect('/admin/dashboard');
             } elseif ($user->role === 'Owner') {
                 return redirect('/owner/dashboard');
+            } elseif ($user->role === 'Konsumen') {
+                return redirect('/home');
             } else {
-                return redirect('/dashboard');
+                return view('/login');
             }
         }
 

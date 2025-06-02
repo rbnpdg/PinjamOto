@@ -6,6 +6,7 @@ use App\Http\Controllers\loginController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\transaksiController;
 use App\Http\Controllers\ownerController;
+use App\Http\Controllers\konsumenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,8 +59,6 @@ Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
 });
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('konsumen-dash');
-    });
+    Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
 });
 
