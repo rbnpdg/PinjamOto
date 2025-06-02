@@ -1,52 +1,85 @@
 @extends('layout/admin-nav')
 
 @section('content')
-<div class="container mt-4">
-    <h2>Tambah Transaksi Baru</h2>
+<div class="card-header pb-0">
+    <h6>Tabel Transaksi</h6>
+</div>
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Data Transaksi</h2>
+        <a href="{{ route('transaksi-add') }}" class="btn btn-primary py-2">Tambah Transaksi</a>
+    </div>
     
-    <form action="{{ route('transaksi-store') }}" method="POST">
-        @csrf
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>No</th>
+                    <th>Konsumen</th>
+                    <th>Mobil</th>
+                    <th>Tanggal Mulai</th>
+                    <th>Tanggal Selesai</th>
+                    <th>Biaya</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($transaksis as $transaksi)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $transaksi->user->nama ?? '-' }} ({{ $transaksi->user->email ?? '-' }})</td>
+                        <td>{{ $transaksi->mobil->nama ?? '-' }} - {{ $transaksi->mobil->tnkb ?? '-' }}</td>
+                        <td>{{ $transaksi->tanggal_mulai }}</td>
+                        <td>{{ $transaksi->tanggal_selesai }}</td>
+                        <td>Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 
+                                $transaksi->status == 'Berjalan' ? 'warning' : 
+                                ($transaksi->status == 'Dibatalkan' ? 'danger' : 
+                                ($transaksi->status == 'Selesai' ? 'success' : 'secondary')) }}">
+                                {{ $transaksi->status }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($transaksi->status == 'Berjalan')
+                                <form action="{{ route('transaksi-reject', $transaksi->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-danger btn-sm">Batalkan</button>
+                                </form>
 
-        <div class="mb-3">  
-            <label for="user_id" class="form-label">Pilih Konsumen</label>
-            <select name="user_id" class="form-select" required>
-                <option value="" disabled selected>-- Pilih Konsumen --</option>
-                @foreach($users as $user)
-                    <option value="{{ $user->id }}">{{ $user->name }} {{ $user->nama }} ({{ $user->email }})</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="mobil_id" class="form-label">Pilih Mobil</label>
-            <select name="mobil_id" class="form-select" required>
-                <option value="" disabled selected>-- Pilih Mobil --</option>
-                @foreach($mobils as $mobil)
-                    <option value="{{ $mobil->id }}">{{ $mobil->nama }} - {{ $mobil->tnkb }}</option>
-                @endforeach
-            </select>
-        </div>
-
-        <div class="mb-3">
-            <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-            <input type="date" name="tanggal_mulai" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
-            <input type="date" name="tanggal_selesai" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select" required>
-                <option value="Menunggu">Menunggu</option>
-                <option value="Disetujui">Disetujui</option>
-                <option value="Ditolak">Ditolak</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Tambah Transaksi</button>
-    </form>
+                                <form action="{{ route('transaksi-finish', $transaksi->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-success btn-sm">Selesai</button>
+                                </form>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center">Belum ada data transaksi.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection
+
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: '{{ session('success') }}',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        });
+    </script>
+@endif

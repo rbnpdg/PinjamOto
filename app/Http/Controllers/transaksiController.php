@@ -4,92 +4,98 @@ namespace App\Http\Controllers;
 use App\Models\Transaksi;
 use App\Models\Mobil;
 use App\Models\User;
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
 
 class transaksiController extends Controller
 {
-    public function index()
+    public function show()
     {
-        $users = User::where('role', 'Konsumen')->get();
-        $mobils = Mobil::where('status', 'Tersedia')->get(); // jika juga dipakai di blade
-        $transaksi = Transaksi::with('user', 'mobil')->latest()->get();
+        $transaksis = Transaksi::with(['user', 'mobil'])->latest()->get();
 
-        return view('transaksi', compact('transaksi', 'users', 'mobils'));
+        return view('transaksi', compact('transaksis'));
     }
 
 
-    public function create()
+    public function tambah()
     {
         $users = User::where('role', 'Konsumen')->get();
         $mobils = Mobil::where('status', 'Tersedia')->get();
-        return view('transaksi.create', compact('users', 'mobils'));
+        return view('transaksi-add', compact('users', 'mobils'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'user_id' => 'required|exists:user,id',
             'mobil_id' => 'required|exists:mobil,id',
-            'tanggal_mulai' => 'required|date|after_or_equal:today',
-            'tanggal_selesai' => 'required|date|after:tanggal_mulai',
-            'status' => 'required|in:Menunggu,Disetujui,Ditolak'
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
         ]);
 
-        $mobil = Mobil::findOrFail($request->mobil_id);
-        $selisihHari = \Carbon\Carbon::parse($request->tanggal_mulai)->diffInDays($request->tanggal_selesai);
-        $totalHarga = $mobil->{"harga-sewa"} * $selisihHari;
+        // Cek apakah user sudah punya transaksi aktif
+        $aktif = Transaksi::where('user_id', $request->user_id)
+                ->where('status', 'Berjalan')  // ganti dengan status transaksi aktif kamu
+                ->exists();
 
-        $transaksi = Transaksi::create([
+        if ($aktif) {
+            return redirect()->back()->withInput()->withErrors(['user_id' => 'User ini memiliki sewa aktif!']);
+        }
+
+        // Cek mobil sudah disewa aktif?
+        $mobilAktif = Transaksi::where('mobil_id', $request->mobil_id)
+                    ->where('status', 'Berjalan')
+                    ->exists();
+
+        if ($mobilAktif) {
+            return redirect()->back()->withInput()->withErrors(['mobil_id' => 'Mobil sedang disewa!']);
+        }
+        
+        // Ambil data mobil dan hitung lama sewa
+        $mobil = Mobil::findOrFail($request->mobil_id);
+        $mulai = Carbon::parse($request->tanggal_mulai);
+        $selesai = Carbon::parse($request->tanggal_selesai);
+        $lamaHari = $mulai->diffInDays($selesai) + 1; // termasuk hari pertama
+        $total = $mobil->hargasewa * $lamaHari;
+
+        Transaksi::create([
             'user_id' => $request->user_id,
             'mobil_id' => $request->mobil_id,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
-            'total_harga' => $totalHarga,
-            'status' => $request->status
+            'status' => 'Berjalan',
+            'total_biaya' => $total,
         ]);
 
-        // Jika disetujui langsung, ubah status mobil
-        if ($request->status === 'Disetujui') {
-            $mobil->update(['status' => 'Disewa']);
-        }
+        $mobil->update(['status' => 'Disewa']);
 
-        return redirect()->route('transaksi')->with('success', 'Transaksi berhasil ditambahkan');
+        return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil ditambahkan');
     }
 
 
-    public function approve($id)
+    public function finish($id)
     {
         $transaksi = Transaksi::findOrFail($id);
-        
-        if ($transaksi->status !== 'Menunggu') {
-            return redirect()->route('transaksi')->with('error', 'Transaksi tidak valid untuk disetujui.');
-        }
-
-        $transaksi->status = 'Disetujui';
+        $transaksi->status = 'Selesai';
         $transaksi->save();
 
-        // Tandai mobil jadi "Disewa"
-        $transaksi->mobil->update(['status' => 'Disewa']);
+        $transaksi->mobil->update(['status' => 'Tersedia']);
 
-        return redirect()->route('transaksi')->with('success', 'Transaksi disetujui.');
+        return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil diselesaikan.');
     }
+
 
     public function reject($id)
     {
         $transaksi = Transaksi::findOrFail($id);
-
-        if ($transaksi->status !== 'Menunggu') {
-            return redirect()->route('transaksi')->with('error', 'Transaksi tidak valid untuk ditolak.');
-        }
-
-        $transaksi->status = 'Ditolak';
+        $transaksi->status = 'Dibatalkan';
         $transaksi->save();
 
         // Kembalikan status mobil ke 'Tersedia'
         $transaksi->mobil->update(['status' => 'Tersedia']);
 
-        return redirect()->route('transaksi')->with('success', 'Transaksi ditolak.');
+        return redirect()->route('transaksi-show')->with('success', 'Transaksi dibatalkan.');
 }
 
 

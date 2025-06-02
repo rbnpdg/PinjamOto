@@ -45,10 +45,11 @@ Route::middleware(['auth', 'cekRole:Admin'])->group(function () {
     Route::get('/user/edit/{user}', [userController::class, 'edit'])->name('user-edit');
     Route::put('/user/update/{user}', [userController::class, 'update'])->name('user-update');
 
-    Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi-index');
-    Route::get('/transaksi/create', [TransaksiController::class, 'create'])->name('transaksi-create');
-    Route::post('/transaksi', [TransaksiController::class, 'store'])->name('transaksi-store');
-    Route::put('/transaksi/{id}/approve', [TransaksiController::class, 'approve'])->name('transaksi-approve');
+    Route::get('/transaksi', [TransaksiController::class, 'show'])->name('transaksi-show');
+    Route::get('/transaksi/tambah', [TransaksiController::class, 'tambah'])->name('transaksi-add');
+    Route::get('/transaksi/edit', [TransaksiController::class, 'edit'])->name('transaksi-edit');
+    Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi-store');
+    Route::put('/transaksi/{id}/finish', [TransaksiController::class, 'finish'])->name('transaksi-finish');
     Route::put('/transaksi/{id}/reject', [TransaksiController::class, 'reject'])->name('transaksi-reject');
 });
 
