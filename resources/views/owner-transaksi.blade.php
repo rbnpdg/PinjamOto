@@ -102,6 +102,14 @@
     };
 
     pdfMake.createPdf(docDefinition).download('laporan-transaksi.pdf');
+    Swal.fire({
+        icon: 'success',
+        title: 'Laporan berhasil diunduh!',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000
+    });
     }
     </script>
 
