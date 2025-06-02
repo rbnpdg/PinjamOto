@@ -13,10 +13,19 @@ class ownerController extends Controller
         return view('owner-mobil', compact('mobil'));
     }
 
-    public function trShow()
+    public function trShow(Request $request)
     {
-        $transaksis = Transaksi::with(['user', 'mobil'])->latest()->get();
+        $query = Transaksi::with(['user', 'mobil']);
+
+        if ($request->filled('tanggal_mulai') && $request->filled('tanggal_selesai')) {
+            $query->whereBetween('tanggal_mulai', [$request->tanggal_mulai, $request->tanggal_selesai]);
+        }
+
+        $transaksis = $query->latest()->get();
 
         return view('owner-transaksi', compact('transaksis'));
+        // $transaksis = Transaksi::with(['user', 'mobil'])->latest()->get();
+
+        // return view('owner-transaksi', compact('transaksis'));
     }
 }
