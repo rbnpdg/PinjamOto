@@ -20,7 +20,7 @@ use App\Http\Controllers\konsumenController;
 */
 
 Route::get('/', function () {
-    return view('admin-dash');
+    return view('login');
 });
 
 Route::get('/admin/dashboard', [loginController::class, 'adminDash'])->name('dash-admin');
