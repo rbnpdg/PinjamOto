@@ -1,8 +1,8 @@
-@extends('layout/admin-nav')
+@extends('layout/owner-nav')
 
 @section('content')
 <div class="container mt-4">
-  <h2>Dashboard Admin</h2>
+  <h2>Dashboard Owner</h2>
   <div class="row mt-4 g-4 pb-4">
 
     <!-- Card Jumlah Mobil -->

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 use App\Models\User;
+use App\Models\Mobil;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -9,7 +11,19 @@ use Illuminate\Support\Facades\Hash;
 class loginController extends Controller
 {
     public function adminDash() {
-        return view('admin-dashboard');
+        $jumlahMobil = Mobil::count();
+        $jumlahUser = User::where('role', 'Konsumen')->count();
+        $jumlahTransaksi = Transaksi::count();
+
+        return view('admin-dash', compact('jumlahMobil', 'jumlahUser', 'jumlahTransaksi'));
+    }
+
+    public function ownerDash() {
+        $jumlahMobil = Mobil::count();
+        $jumlahUser = User::where('role', 'Konsumen')->count();
+        $jumlahTransaksi = Transaksi::count();
+
+        return view('owner-dash', compact('jumlahMobil', 'jumlahUser', 'jumlahTransaksi'));
     }
 
     public function show() {
@@ -29,9 +43,9 @@ class loginController extends Controller
             session(['role' => $user->role]);
 
             if ($user->role === 'Admin') {
-                return redirect('/admin');
+                return redirect('/admin/dashboard');
             } elseif ($user->role === 'Owner') {
-                return redirect('/owner');
+                return redirect('/owner/dashboard');
             } else {
                 return redirect('/dashboard');
             }

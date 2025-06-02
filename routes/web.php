@@ -5,6 +5,7 @@ use App\Http\Controllers\mobilController;
 use App\Http\Controllers\loginController;
 use App\Http\Controllers\userController;
 use App\Http\Controllers\transaksiController;
+use App\Http\Controllers\ownerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,10 +29,7 @@ Route::post('/login/session', [loginController::class, 'login']);
 Route::get('/logout', [loginController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth', 'cekRole:Admin'])->group(function () {
-    Route::get('/admin', function () {
-        return view('admin-dash');
-    });
-        
+    Route::get('/admin/dashboard', [loginController::class, 'adminDash'])->name('admin-show');
     Route::get('/mobil', [mobilController::class, 'show'])->name('mobil-show');
     Route::get('/mobil/tambah', [mobilController::class, 'tambah'])->name('mobil-add');
     Route::post('/mobil/store', [mobilController::class, 'store'])->name('mobil-store');
@@ -54,9 +52,9 @@ Route::middleware(['auth', 'cekRole:Admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
-    Route::get('/owner', function () {
-        return view('owner-dash');
-    });
+    Route::get('/owner/dashboard', [loginController::class, 'ownerDash'])->name('owner-dash');
+    Route::get('/owner/mobil', [ownerController::class, 'show'])->name('mobil-owner');
+    Route::get('/owner/transaksi', [ownerController::class, 'trShow'])->name('transaksi-owner');
 });
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {

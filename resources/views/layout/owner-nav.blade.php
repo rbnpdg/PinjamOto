@@ -39,7 +39,7 @@
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('admin-show') ? 'active' : '' }}" href="{{ route('admin-show') }}">
+          <a class="nav-link {{ request()->routeIs('owner-dash') ? 'active' : '' }}" href="{{ route('owner-dash') }}">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-tv" style="font-size: 17px; color: #3b4662;"></i>
             </div>
@@ -47,7 +47,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('mobil-show') ? 'active' : '' }}" href="{{ route('mobil-show') }}">
+          <a class="nav-link {{ request()->routeIs('mobil-owner') ? 'active' : '' }}" href="{{ route('mobil-owner') }}">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-car" style="font-size: 20px; color: #3b4662;"></i>
             </div>
@@ -55,23 +55,23 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('transaksi-show') ? 'active' : '' }}" href="{{ route('transaksi-show') }}">
+          <a class="nav-link {{ request()->routeIs('transaksi-owner') ? 'active' : '' }}" href="{{ route('transaksi-owner') }}">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-file-invoice" style="font-size: 20px; color: #3b4662;"></i>
             </div>
             <span class="nav-link-text ms-1">Transaksi</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link {{ request()->routeIs('user-show') ? 'active' : '' }}" href="{{ route('user-show') }}">
+        <!-- <li class="nav-item">
+          <a class="nav-link " href="#">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-user" style="font-size: 20px; color: #3b4662;"></i>
             </div>
             <span class="nav-link-text ms-1">User</span>
           </a>
-        </li>
+        </li> -->
         <li class="nav-item">
-          <a class="nav-link " href="{{ route('logout') }}">
+          <a class="nav-link" href="{{ route('logout') }}">
             <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
               <i class="fa-solid fa-right-from-bracket" style="font-size: 20px; color: #3b4662;"></i>
             </div>
