@@ -1,25 +1,23 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\mobilController;
 use App\Http\Controllers\loginController;
 use App\Http\Controllers\userController;
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Route::get('/', function () {
-    return view('admin-dash');
+    return view('home');
 });
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/daftar-mobil', [HomeController::class, 'cars'])->name('cars');
+Route::get('/tentang', [HomeController::class, 'about'])->name('about');
+Route::get('/kontak', [HomeController::class, 'contact'])->name('contact');
+
+
+
+
 
 Route::get('/admin/dashboard', [loginController::class, 'adminDash'])->name('dash-admin');
 
