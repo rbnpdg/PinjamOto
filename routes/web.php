@@ -60,5 +60,9 @@ Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
     Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
+    Route::get('/katalog', [konsumenController::class, 'katalog'])->name('mobil-katalog');
+    Route::get('/keranjang/tambah/{id}', [konsumenController::class, 'tambahkeranjangShow'])->name('tambah-keranjang');
+    Route::post('/keranjang/store/{id}', [konsumenController::class, 'tambahKeranjang'])->name('keranjang-add');
+    Route::get('/filtered', [konsumenController::class, 'filter'])->name('katalog-filter');
 });
 
