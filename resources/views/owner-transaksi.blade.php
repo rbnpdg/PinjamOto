@@ -94,24 +94,7 @@
                     'Rp {{ number_format($t->total_biaya, 0, ",", ".") }}',
                     '{{ $t->status }}'
                 ],
-                @endforeach
-            ]
-            }
-        }
-        ]
-    };
-
-    pdfMake.createPdf(docDefinition).download('laporan-transaksi.pdf');
-    Swal.fire({
-        icon: 'success',
-        title: 'Laporan berhasil diunduh!',
-        toast: true,
-        position: 'top-end',
-        showConfirmButton: false,
-        timer: 3000
-    });
-    }
-    </script>
+    x
 
     @endsection
 

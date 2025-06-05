@@ -20,10 +20,15 @@ use App\Http\Controllers\konsumenController;
 */
 
 Route::get('/', function () {
-    return view('login');
+    return view('konsumen-home');
 });
 
-Route::get('/admin/dashboard', [loginController::class, 'adminDash'])->name('dash-admin');
+Route::post('/duitku/callback', [TransaksiController::class, 'duitkuCallback'])->name('duitku.callback');
+Route::post('/transaksi/bayar', [TransaksiController::class, 'storeBayar'])->name('transaksi.bayar');
+Route::get('/transaksi/{id}/bayar', [TransaksiController::class, 'bayarDuitku'])->name('transaksi.bayar.duitku');
+
+Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
+Route::get('/katalog', [konsumenController::class, 'katalog'])->name('mobil-katalog');
 
 Route::get('/login', [loginController::class, 'show'])->name('login-show');
 Route::post('/login/session', [loginController::class, 'login']);
@@ -59,10 +64,12 @@ Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
 });
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
-    Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
-    Route::get('/katalog', [konsumenController::class, 'katalog'])->name('mobil-katalog');
     Route::get('/keranjang/tambah/{id}', [konsumenController::class, 'tambahkeranjangShow'])->name('tambah-keranjang');
     Route::post('/keranjang/store/{id}', [konsumenController::class, 'tambahKeranjang'])->name('keranjang-add');
     Route::get('/filtered', [konsumenController::class, 'filter'])->name('katalog-filter');
-});
+    Route::get('/pesan-{id}', [konsumenController::class, 'pesanShow'])->name('mobil-pesan');
+
+    Route::post('/transaksi/bayar', [TransaksiController::class, 'bayar'])->name('transaksi.bayar')->middleware('auth');
+}); 
+
 

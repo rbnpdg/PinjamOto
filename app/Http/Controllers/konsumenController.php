@@ -75,4 +75,9 @@ class konsumenController extends Controller
         return view('konsumen-katalog', compact('mobil'));
     }
 
+    public function pesanShow($id) {
+        $mobil = Mobil::findOrFail($id);
+        return view('konsumen-pesan', compact('mobil'));
+    }
+
 }

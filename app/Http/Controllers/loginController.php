@@ -38,28 +38,27 @@ class loginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-// if (!$user) {
-//     dd('User tidak ditemukan'); // email tidak cocok
-// }
+        // if (!$user) {
+        //     dd('User tidak ditemukan'); // email tidak cocok
+        // }
 
-// if (!Hash::check($request->password, $user->password)) {
-//     dd('Password tidak cocok', [
-//         'input_password' => $request->password,
-//         'hashed' => $user->password
-//     ]);
-// }
-
+        // if (!Hash::check($request->password, $user->password)) {
+        //     dd('Password tidak cocok', [
+        //         'input_password' => $request->password,
+        //         'hashed' => $user->password
+        //     ]);
+        // }
 
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
             session(['role' => $user->role]);
 
             if ($user->role === 'Admin') {
-                return redirect('/admin/dashboard');
+                return redirect('/admin/dashboard')->with('success', 'Selamat datang!');
             } elseif ($user->role === 'Owner') {
-                return redirect('/owner/dashboard');
+                return redirect('/owner/dashboard')->with('success', 'Selamat datang!');
             } elseif ($user->role === 'Konsumen') {
-                return redirect('/home');
+                return redirect('/home')->with('success', 'Selamat datang!');
             } else {
                 return view('/login');
             }
@@ -70,6 +69,6 @@ class loginController extends Controller
 
     public function logout() {
         Auth::logout();
-        return redirect('/login');
+        return redirect()->route('user-home')->with('success', 'Berhasil Logout!');
     }
 }

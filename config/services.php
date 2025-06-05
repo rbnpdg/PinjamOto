@@ -31,4 +31,11 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'duitku' => [
+        'merchant_code' => env('DUITKU_MERCHANT_CODE'),
+        'api_key' => env('DUITKU_API_KEY'),
+        'env' => env('DUITKU_ENV', 'sandbox'),
+        'callback_url' => env('DUITKU_CALLBACK_URL'),
+    ],
+
 ];
