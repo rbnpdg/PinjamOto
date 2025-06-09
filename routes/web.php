@@ -8,23 +8,11 @@ use App\Http\Controllers\transaksiController;
 use App\Http\Controllers\ownerController;
 use App\Http\Controllers\konsumenController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
 Route::get('/', function () {
     return view('konsumen-home');
 });
 
 Route::post('/duitku/callback', [TransaksiController::class, 'duitkuCallback'])->name('duitku.callback');
-Route::post('/transaksi/bayar', [TransaksiController::class, 'storeBayar'])->name('transaksi.bayar');
 Route::get('/transaksi/{id}/bayar', [TransaksiController::class, 'bayarDuitku'])->name('transaksi.bayar.duitku');
 
 Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
@@ -55,6 +43,9 @@ Route::middleware(['auth', 'cekRole:Admin'])->group(function () {
     Route::post('/transaksi/store', [TransaksiController::class, 'store'])->name('transaksi-store');
     Route::put('/transaksi/{id}/finish', [TransaksiController::class, 'finish'])->name('transaksi-finish');
     Route::put('/transaksi/{id}/reject', [TransaksiController::class, 'reject'])->name('transaksi-reject');
+    Route::put('/transaksi/{id}/konfirmasi', [TransaksiController::class, 'konfirmasiPembayaran'])->name('transaksi-konfirmasi');
+    Route::put('/transaksi/{id}/tolak', [TransaksiController::class, 'tolakPembayaran'])->name('transaksi-tolak');
+    Route::post('/transaksi/admin-preview', [TransaksiController::class, 'previewAdmin'])->name('admin-trpreview');
 });
 
 Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
@@ -69,7 +60,10 @@ Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
     Route::get('/filtered', [konsumenController::class, 'filter'])->name('katalog-filter');
     Route::get('/pesan-{id}', [konsumenController::class, 'pesanShow'])->name('mobil-pesan');
 
-    Route::post('/transaksi/bayar', [TransaksiController::class, 'bayar'])->name('transaksi.bayar')->middleware('auth');
+    Route::post('/transaksi/preview', [TransaksiController::class, 'preview'])->name('transaksi.preview');
+    Route::get('/bayar/{metode}', [transaksiController::class, 'showPayment'])->name('pembayaran.show');
+    Route::post('/transaksi/konfirmasi-bayar', [TransaksiController::class, 'konfirmasiBayar'])->name('transaksi.konfirmasiBayar');
+
 }); 
 
 

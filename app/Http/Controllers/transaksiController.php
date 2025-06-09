@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Transaksi;
 use App\Models\Mobil;
 use App\Models\User;
 use Carbon\Carbon;
-
+use Midtrans\Snap;
+use Midtrans\Config;
+use Midtrans\Transaction;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,16 +18,14 @@ class transaksiController extends Controller
     public function show()
     {
         $transaksis = Transaksi::with(['user', 'mobil'])->latest()->get();
-
         return view('transaksi', compact('transaksis'));
     }
-
 
     public function tambah()
     {
         $users = User::where('role', 'Konsumen')->get();
-        $mobil = Mobil::where('status', 'Tersedia')->get();
-        return view('transaksi-add', compact('users', 'mobil'));
+        $mobils = Mobil::where('status', 'Tersedia')->get();
+        return view('transaksi-add', compact('users', 'mobils'));
     }
 
     public function store(Request $request)
@@ -35,251 +35,189 @@ class transaksiController extends Controller
             'mobil_id' => 'required|exists:mobil,id',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+            'metode_pembayaran' => 'required|string'
         ]);
 
-        // Cek apakah user sudah punya transaksi aktif
         $aktif = Transaksi::where('user_id', $request->user_id)
-                ->where('status', 'Berjalan')  // ganti dengan status transaksi aktif kamu
-                ->exists();
+            ->where('status', 'Berjalan')->exists();
 
         if ($aktif) {
-            return redirect()->back()->withInput()->withErrors(['user_id' => 'User ini memiliki sewa aktif!']);
+            return back()->withErrors(['user_id' => 'User ini memiliki sewa aktif!'])->withInput();
         }
 
-        // Cek mobil sudah disewa aktif?
         $mobilAktif = Transaksi::where('mobil_id', $request->mobil_id)
-                    ->where('status', 'Berjalan')
-                    ->exists();
+            ->where('status', 'Berjalan')->exists();
 
         if ($mobilAktif) {
-            return redirect()->back()->withInput()->withErrors(['mobil_id' => 'Mobil sedang disewa!']);
+            return back()->withErrors(['mobil_id' => 'Mobil sedang disewa!'])->withInput();
         }
-        
-        // Ambil data mobil dan hitung lama sewa
+
         $mobil = Mobil::findOrFail($request->mobil_id);
         $mulai = Carbon::parse($request->tanggal_mulai);
         $selesai = Carbon::parse($request->tanggal_selesai);
-        $lamaHari = $mulai->diffInDays($selesai) + 1; // termasuk hari pertama
+        $lamaHari = $mulai->diffInDays($selesai) + 1;
         $total = $mobil->hargasewa * $lamaHari;
 
-        Transaksi::create([
+        $transaksi = Transaksi::create([
             'user_id' => $request->user_id,
             'mobil_id' => $request->mobil_id,
             'tanggal_mulai' => $request->tanggal_mulai,
             'tanggal_selesai' => $request->tanggal_selesai,
-            'status' => 'Berjalan',
+            'status' => 'Menunggu',
             'total_biaya' => $total,
+            'tanggal_transaksi' => now(),
+            'metode_pembayaran' => $request->metode_pembayaran,
         ]);
 
-        $mobil->update(['status' => 'Disewa']);
+        if (strtolower($request->metode_pembayaran) == 'duitku') {
+            return redirect()->route('transaksi.bayar.duitku', ['id' => $transaksi->id]);
+        }
 
-        return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil ditambahkan');
+        return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil ditambahkan.');
     }
 
+    public function previewAdmin(Request $request)
+    {
+        $user = User::findOrFail($request->user_id);
+        $mobil = Mobil::findOrFail($request->mobil_id);
+
+        $tanggal_mulai = $request->tanggal_mulai;
+        $tanggal_selesai = $request->tanggal_selesai;
+
+        $start = new \DateTime($tanggal_mulai);
+        $end = new \DateTime($tanggal_selesai);
+        $selisih = $start->diff($end)->days;
+        $total_biaya = $mobil->hargasewa * $selisih;
+        $metode_pembayaran = $request->metode_pembayaran;
+
+        return view('transaksi-admprev', compact(
+            'user', 'mobil', 'tanggal_mulai', 'tanggal_selesai', 'total_biaya', 'metode_pembayaran'
+        ));
+    }
+
+
+    public function preview(Request $request)
+    {
+        $request->validate([
+            'mobil_id' => 'required|exists:mobil,id',
+            'user_id' => 'required|exists:user,id',
+            'tanggal_mulai' => 'required|date',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+        ]);
+
+        $mobil = Mobil::findOrFail($request->mobil_id);
+
+        // Hitung durasi sewa
+        $start = new \Carbon\Carbon($request->tanggal_mulai);
+        $end = new \Carbon\Carbon($request->tanggal_selesai);
+        $days = $start->diffInDays($end) + 1;
+
+        // Hitung total harga
+        $totalHarga = $days * $mobil->hargasewa;
+
+        return view('transaksi-preview', [
+            'mobil' => $mobil,
+            'user' => auth()->user(),
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'durasi' => $days,
+            'total' => $totalHarga,
+        ]);
+    }
+
+    public function showPayment($metode, Request $request)
+    {
+        // Validasi metode
+        $allowed = ['qris', 'gopay', 'bni', 'bca', 'cod'];
+        if (!in_array($metode, $allowed)) {
+            abort(404);
+        }
+
+        $user = User::findOrFail($request->user_id);
+        $mobil = Mobil::findOrFail($request->mobil_id);
+
+        return view('payment-' . $metode, [
+            'metode' => strtoupper($metode),
+            'user' => $user,
+            'mobil' => $mobil,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'total_biaya' => $request->total_biaya
+        ]);
+    }
+    
+    public function konfirmasiBayar(Request $request)
+    {
+        // Validasi
+        $request->validate([
+            'user_id' => 'required|exists:user,id',
+            'mobil_id' => 'required|exists:mobil,id',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'tanggal_selesai' => 'required|date|after:tanggal_mulai',
+            'total_biaya' => 'required|numeric|min:0',
+            'metode_pembayaran' => 'required|string|in:qris,gopay,bni,bca,cod',
+        ]);
+
+        // Simpan transaksi
+        $transaksi = Transaksi::create([
+            'user_id' => $request->user_id,
+            'mobil_id' => $request->mobil_id,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'total_biaya' => $request->total_biaya,
+            'status' => 'Menunggu',
+            'tanggal_transaksi' => now(),
+            'metode_pembayaran' => $request->metode_pembayaran,
+        ]);
+
+        return redirect()->route('mobil-katalog')->with('success', 'Transaksi Anda berhasi! Mohon tunggu validasi admin');
+    }
+
+    public function konfirmasiPembayaran($id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+        
+        // Update status pembayaran dan status transaksi
+        $transaksi->update([
+            'status_payment' => 'Dibayar',
+            'status' => 'Berjalan',
+        ]);
+
+        return redirect()->back()->with('success', 'Transaksi berhasil dikonfirmasi dan status diubah menjadi Berjalan.');
+    }
+
+    public function tolakPembayaran($id)
+    {
+        $transaksi = Transaksi::findOrFail($id);
+
+        // Pastikan hanya menolak jika status_payment masih menunggu
+        if ($transaksi->status_payment !== 'Menunggu') {
+            return redirect()->back()->with('error', 'Transaksi ini sudah diproses sebelumnya.');
+        }
+
+        $transaksi->update([
+            'status_payment' => 'Ditolak',
+            'status' => 'Dibatalkan',
+        ]);
+
+        return redirect()->back()->with('success', 'Transaksi telah ditolak dan dibatalkan.');
+    }
 
     public function finish($id)
     {
         $transaksi = Transaksi::findOrFail($id);
         $transaksi->status = 'Selesai';
         $transaksi->save();
-
         $transaksi->mobil->update(['status' => 'Tersedia']);
-
         return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil diselesaikan.');
     }
-
 
     public function reject($id)
     {
         $transaksi = Transaksi::findOrFail($id);
         $transaksi->status = 'Dibatalkan';
         $transaksi->save();
-
-        // Kembalikan status mobil ke 'Tersedia'
         $transaksi->mobil->update(['status' => 'Tersedia']);
-
         return redirect()->route('transaksi-show')->with('success', 'Transaksi dibatalkan.');
-    }
-
-    public function duitkuCallback(Request $request)
-    {
-        $payload = $request->all();
-
-        // Validasi signature
-        $expectedSignature = hash('sha256',
-            $payload['merchantCode'] .
-            $payload['amount'] .
-            $payload['merchantOrderId'] .
-            env('DUITKU_API_KEY')
-        );
-
-        if ($payload['signature'] !== $expectedSignature) {
-            return response()->json(['message' => 'Invalid signature'], 403);
-        }
-
-        // Cari transaksi berdasarkan merchantOrderId
-        $orderId = $payload['merchantOrderId'];
-        $statusCode = $payload['statusCode'];
-
-        $transaksi = Transaksi::where('id', $orderId)->first();
-        if (!$transaksi) {
-            return response()->json(['message' => 'Transaksi tidak ditemukan'], 404);
-        }
-
-        // Update status transaksi dan mobil
-        if ($statusCode == '00') {
-            $transaksi->status = 'Berhasil';
-            $transaksi->mobil->update(['status' => 'Disewa']);
-        } elseif ($statusCode == '01') {
-            $transaksi->status = 'Menunggu';
-        } else {
-            $transaksi->status = 'Gagal';
-            $transaksi->mobil->update(['status' => 'Tersedia']);
-        }
-
-        $transaksi->save();
-
-        return response()->json(['message' => 'OK']);
-    }
-
-    public function storeBayar(Request $request)
-    {
-        $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'mobil_id' => 'required|exists:mobils,id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        $mobil = Mobil::findOrFail($request->mobil_id);
-
-        $selisihHari = now()->parse($request->tanggal_mulai)->diffInDays($request->tanggal_selesai) + 1;
-        $totalBiaya = $mobil->harga_sewa * $selisihHari;
-
-        $transaksi = Transaksi::create([
-            'user_id' => $request->user_id,
-            'mobil_id' => $mobil->id,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'total_biaya' => $totalBiaya,
-            'status' => 'menunggu pembayaran',
-            'tanggal_transaksi' => now(),
-        ]);
-
-        return redirect()->route('transaksi.bayar.duitku', ['id' => $transaksi->id]);
-    }
-
-
-    public function bayarDuitku($id)
-    {
-        $transaksi = Transaksi::with('user', 'mobil')->findOrFail($id);
-
-        $merchantCode = config('services.duitku.merchant_code');
-        $apiKey = config('services.duitku.api_key');
-        $callbackUrl = config('services.duitku.callback_url');
-
-        dd([
-    'merchant_code' => $merchantCode,
-    'api_key' => $apiKey,
-    'callback_url' => $callbackUrl,
-]);
-
-        $paymentAmount = $transaksi->total_biaya;
-        $merchantOrderId = 'INV' . $transaksi->id;
-        $productDetails = "Sewa Mobil: " . $transaksi->mobil->nama;
-
-        $signature = hash('sha256', $merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
-
-        $params = [
-            'merchantCode' => $merchantCode,
-            'paymentAmount' => $paymentAmount,
-            'merchantOrderId' => $merchantOrderId,
-            'productDetails' => $productDetails,
-            'email' => $transaksi->user->email ?? 'dummy@email.com',
-            'customerVaName' => $transaksi->user->nama,
-            'callbackUrl' => $callbackUrl,
-            'returnUrl' => url('/pesanan/sukses'),
-            'signature' => $signature,
-            'expiryPeriod' => 60,
-        ];
-
-        $url = config('services.duitku.env') === 'sandbox'
-            ? 'https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry'
-            : 'https://passport.duitku.com/webapi/api/merchant/v2/inquiry';
-
-        $response = Http::withHeaders([
-            'Content-Type' => 'application/json',
-        ])->post($url, $params);
-
-        if ($response->successful() && isset($response->json()['paymentUrl'])) {
-            return redirect($response->json()['paymentUrl']);
-        }
-
-        return back()->with('error', 'Gagal membuat transaksi pembayaran dengan Duitku.');
-    }
-
-
-    public function bayar(Request $request)
-    {
-        $request->validate([
-            'mobil_id' => 'required|exists:mobil,id',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        $mobil = Mobil::findOrFail($request->mobil_id);
-        $lamaHari = Carbon::parse($request->tanggal_mulai)->diffInDays(Carbon::parse($request->tanggal_selesai)) + 1;
-        $totalBiaya = $mobil->hargasewa * $lamaHari;
-
-        // Buat transaksi lokal dulu
-        $transaksi = Transaksi::create([
-            'user_id' => auth()->id(),
-            'mobil_id' => $mobil->id,
-            'tanggal_mulai' => $request->tanggal_mulai,
-            'tanggal_selesai' => $request->tanggal_selesai,
-            'total_biaya' => $totalBiaya,
-            'status' => 'Menunggu',
-            'tanggal_transaksi' => now(),
-        ]);
-
-        // Buat merchantOrderId unik (gunakan ID transaksi lokal)
-        $merchantOrderId = $transaksi->id;
-        $transaksi->merchant_order_id = $merchantOrderId;
-        $transaksi->save();
-
-        // Kirim ke Duitku
-        $merchantCode = env('DUITKU_MERCHANT_CODE');
-        $apiKey = env('DUITKU_API_KEY');
-        $callbackUrl = route('duitku.callback');
-        $returnUrl = route('transaksi-show');
-
-        $paymentAmount = $totalBiaya;
-        $productDetails = 'Sewa Mobil ' . $mobil->nama;
-
-        $signature = hash('sha256', $merchantCode . $merchantOrderId . $paymentAmount . $apiKey);
-
-        $params = [
-            'merchantCode' => $merchantCode,
-            'paymentAmount' => $paymentAmount,
-            'merchantOrderId' => $merchantOrderId,
-            'productDetails' => $productDetails,
-            'email' => auth()->user()->email,
-            'customerVaName' => auth()->user()->name,
-            'callbackUrl' => $callbackUrl,
-            'returnUrl' => $returnUrl,
-            'signature' => $signature,
-            'expiryPeriod' => 60,
-        ];
-
-        $response = Http::withHeaders(['Content-Type' => 'application/json'])
-            ->post('https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry', $params);
-
-        $result = $response->json();
-
-        if (isset($result['paymentUrl'])) {
-            return redirect($result['paymentUrl']);
-        } else {
-            return back()->with('error', 'Gagal memproses pembayaran');
-        }
     }
 }

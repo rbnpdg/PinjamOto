@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('transaksi', function (Blueprint $table) {
-            $table->timestamp('tanggal_transaksi')->nullable();
-            $table->string('metode_pembayaran')->nullable();
+            $table->enum('status_payment', ['Dibayar', 'Menunggu', 'Ditolak'])->default('Menunggu')->nullable();
         });
     }
 

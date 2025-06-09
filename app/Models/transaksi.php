@@ -17,7 +17,10 @@ class Transaksi extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'total_biaya',
-        'status'
+        'status',
+        'status_payment',
+        'tanggal_transaksi',
+        'metode_pembayaran'
     ];
 
     public function user()

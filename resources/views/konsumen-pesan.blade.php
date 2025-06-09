@@ -5,7 +5,7 @@
     <div class="card w-50 w-md-75 p-4 shadow">
         <h2 class="mb-4 text-center text-primary">Pesan Mobil</h2>
         
-        <form action="{{ route('transaksi.bayar') }}" method="POST">
+        <form action="{{ route('transaksi.preview') }}" method="POST">
             @csrf
 
             {{-- Nama Konsumen --}}
@@ -39,6 +39,43 @@
                 <button type="submit" class="btn btn-primary">Pesan Sekarang</button>
             </div>
         </form>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.querySelector('form');
+                const mulai = document.querySelector('input[name="tanggal_mulai"]');
+                const selesai = document.querySelector('input[name="tanggal_selesai"]');
+
+                form.addEventListener('submit', function (e) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Set ke awal hari
+
+                    const tglMulai = new Date(mulai.value);
+                    const tglSelesai = new Date(selesai.value);
+
+                    if (tglMulai < today) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tanggal tidak valid',
+                            text: 'Tanggal mulai minimal adalah hari ini.',
+                            confirmButtonText: 'OK'
+                        });
+                        return;
+                    }
+
+                    if (tglSelesai <= tglMulai) {
+                        e.preventDefault();
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Tanggal tidak valid',
+                            text: 'Tanggal selesai harus setelah tanggal mulai.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
+            });
+        </script>
+
 
         @if ($errors->any())
             <script>

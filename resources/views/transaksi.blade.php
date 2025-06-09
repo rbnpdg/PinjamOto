@@ -21,7 +21,8 @@
                     <th>Tanggal Mulai</th>
                     <th>Tanggal Selesai</th>
                     <th>Biaya</th>
-                    <th>Status</th>
+                    <th>Status Transaksi</th>
+                    <th>Status Pembayaran</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -43,6 +44,28 @@
                             </span>
                         </td>
                         <td>
+                            <span class="badge bg-{{ 
+                                $transaksi->status_payment == 'Dibayar' ? 'success' : 
+                                ($transaksi->status_payment == 'Menunggu' ? 'secondary' : 
+                                ($transaksi->status_payment == 'Ditolak' ? 'danger' : 'dark')) }}">
+                                {{ $transaksi->status_payment ?? 'Tidak Diketahui' }}
+                            </span>
+                        </td>
+                        <td>
+                            @if ($transaksi->status_payment == 'Menunggu')
+                                <form action="{{ route('transaksi-konfirmasi', $transaksi->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-primary btn-sm">Konfirmasi Transaksi</button>
+                                </form>
+
+                                <form action="{{ route('transaksi-tolak', $transaksi->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PUT')
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Tolak Transaksi</button>
+                                </form>
+                            @endif
+
                             @if ($transaksi->status == 'Berjalan')
                                 <form action="{{ route('transaksi-reject', $transaksi->id) }}" method="POST" class="d-inline">
                                     @csrf
