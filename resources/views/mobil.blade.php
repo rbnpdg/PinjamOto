@@ -47,7 +47,14 @@
                         <td>{{ $mobil->transmisi ?? '-' }}</td>
                         <td>{{ $mobil->bbm ?? '-' }}</td>
                         <td>Rp {{ number_format($mobil->hargasewa, 0, ',', '.') }}</td>
-                        <td>{{ $mobil->status }}</td>
+                        <td>
+                            <span class="badge bg-{{ 
+                                $mobil->status == 'Disewa' ? 'danger' : 
+                                ($mobil->status == 'Tersedia' ? 'success' : 
+                                ($mobil->status == 'Maintenance' ? 'warning' : 'dark')) }}">
+                                {{ $mobil->status ?? 'Tidak Diketahui' }}
+                            </span>
+                        </td>
                         <td>
                             <a href="{{ route('mobil-edit', $mobil->id) }}" class="btn btn-warning btn-sm">Edit</a>
                             <form id="delete-form-{{ $mobil->id }}" action="{{ route('mobil-del', $mobil->id) }}" method="POST" class="d-inline">

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Mobil;
+use App\Models\Transaksi;
 
 class konsumenController extends Controller
 {
@@ -15,8 +16,18 @@ class konsumenController extends Controller
 
     public function katalog()
     {
-        $mobil = Mobil::all();
-        return view('konsumen-katalog', compact('mobil'));
+        
+        $mobil = Mobil::where('status', 'Tersedia')->get();
+        $user = auth()->user();
+
+        $pesananAktif = false;
+        if ($user) {
+            $pesananAktif = Transaksi::where('user_id', $user->id)
+                ->whereIn('status', ['Berjalan', 'Menunggu'])
+                ->exists();
+        }
+
+        return view('konsumen-katalog', compact('mobil', 'pesananAktif'));
     }
 
     public function tambahkeranjangShow($id)

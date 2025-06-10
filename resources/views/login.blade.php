@@ -1,21 +1,6 @@
     @extends('layout/app')
 
     @section('content')
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if ($errors->any())
-            <div class="alert alert-d anger">
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         <div class="login-container">
             <div class="login-box col-md-4 p-4 rounded">
                 <img src="{{ asset('/img/logo-full.png') }}" alt="Logo">
@@ -39,6 +24,15 @@
                     icon: 'success',
                     title: 'Berhasil!',
                     text: '{{ session('success') }}',
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            @endif
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal!',
+                    text: {!! json_encode(session('error')) !!},
                     timer: 2500,
                     showConfirmButton: false
                 });

@@ -66,16 +66,22 @@
                             <p class="card-text fw-bold text-danger">Rp {{ number_format($item->hargasewa, 0, ',', '.') }} / hari</p>
                             <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
                                 @auth
-                                    <a href="{{ route('mobil-pesan', $item->id) }}" class="btn btn-outline-primary w-100 rounded-end-0">Sewa Sekarang</a>
+                                    @if ($pesananAktif)
+                                        <button class="btn btn-outline-secondary w-100 rounded-end-0" disabled>Selesaikan Transaksi Anda</button>
+                                    @else
+                                        <a href="{{ route('mobil-pesan', $item->id) }}" class="btn btn-outline-primary w-100 rounded-end-0">Sewa Sekarang</a>
+                                    @endif
                                 @else
                                     <a href="{{ route('login-show') }}" class="btn btn-outline-primary w-100 rounded-end-0">Login untuk Sewa</a>
                                 @endauth
+
                                 <form action="{{ route('tambah-keranjang', $item->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-primary rounded-start-0">
+                                    <button type="submit" class="btn btn-outline-primary rounded-start-0" {{ $pesananAktif ? 'disabled' : '' }}>
                                         <i class="bi bi-cart-plus"></i>
                                     </button>
                                 </form>
+
                             </div>
                         </div>
                     </div>

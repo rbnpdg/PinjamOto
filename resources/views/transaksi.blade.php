@@ -67,11 +67,11 @@
                             @endif
 
                             @if ($transaksi->status == 'Berjalan')
-                                <form action="{{ route('transaksi-reject', $transaksi->id) }}" method="POST" class="d-inline">
+                                <!-- <form action="{{ route('transaksi-reject', $transaksi->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="btn btn-danger btn-sm">Batalkan</button>
-                                </form>
+                                </form> -->
 
                                 <form action="{{ route('transaksi-finish', $transaksi->id) }}" method="POST" class="d-inline">
                                     @csrf

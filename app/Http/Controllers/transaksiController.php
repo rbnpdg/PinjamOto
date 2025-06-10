@@ -28,6 +28,7 @@ class transaksiController extends Controller
         return view('transaksi-add', compact('users', 'mobils'));
     }
 
+    //store transaksi admin 
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -72,6 +73,9 @@ class transaksiController extends Controller
         if (strtolower($request->metode_pembayaran) == 'duitku') {
             return redirect()->route('transaksi.bayar.duitku', ['id' => $transaksi->id]);
         }
+
+        $mobil->status = 'Disewa';
+        $mobil->save();
 
         return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil ditambahkan.');
     }
@@ -170,6 +174,12 @@ class transaksiController extends Controller
             'metode_pembayaran' => $request->metode_pembayaran,
         ]);
 
+        $mobil = Mobil::find($request->mobil_id);
+        if ($mobil) {
+            $mobil->status = 'Disewa';
+            $mobil->save();
+        }
+
         return redirect()->route('mobil-katalog')->with('success', 'Transaksi Anda berhasi! Mohon tunggu validasi admin');
     }
 
@@ -200,6 +210,13 @@ class transaksiController extends Controller
             'status' => 'Dibatalkan',
         ]);
 
+        $mobil = Mobil::find($transaksi->mobil_id);
+
+        if ($mobil) {
+            $mobil->status = 'Tersedia';
+            $mobil->save();
+        }
+
         return redirect()->back()->with('success', 'Transaksi telah ditolak dan dibatalkan.');
     }
 
@@ -212,12 +229,19 @@ class transaksiController extends Controller
         return redirect()->route('transaksi-show')->with('success', 'Transaksi berhasil diselesaikan.');
     }
 
-    public function reject($id)
-    {
-        $transaksi = Transaksi::findOrFail($id);
-        $transaksi->status = 'Dibatalkan';
-        $transaksi->save();
-        $transaksi->mobil->update(['status' => 'Tersedia']);
-        return redirect()->route('transaksi-show')->with('success', 'Transaksi dibatalkan.');
-    }
+    // public function reject($id)
+    // {
+    //     $transaksi = Transaksi::findOrFail($id);
+    //     $transaksi->status = 'Dibatalkan';
+    //     $transaksi->save();
+        
+    //     $mobil = Mobil::find($transaksi->mobil_id);
+
+    //     if ($mobil) {
+    //         $mobil->status = 'Tersedia';
+    //         $mobil->save();
+    //     }
+
+    //     return redirect()->route('transaksi-show')->with('success', 'Transaksi dibatalkan.');
+    // }
 }

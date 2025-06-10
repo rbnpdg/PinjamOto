@@ -38,33 +38,24 @@ class loginController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        // if (!$user) {
-        //     dd('User tidak ditemukan'); // email tidak cocok
-        // }
-
-        // if (!Hash::check($request->password, $user->password)) {
-        //     dd('Password tidak cocok', [
-        //         'input_password' => $request->password,
-        //         'hashed' => $user->password
-        //     ]);
-        // }
-
         if ($user && Hash::check($request->password, $user->password)) {
             Auth::login($user);
             session(['role' => $user->role]);
 
+            $welcomeMessage = 'Selamat datang, ' . $user->nama . '!';
+
             if ($user->role === 'Admin') {
-                return redirect('/admin/dashboard')->with('success', 'Selamat datang!');
+                return redirect('/admin/dashboard')->with('success', $welcomeMessage);
             } elseif ($user->role === 'Owner') {
-                return redirect('/owner/dashboard')->with('success', 'Selamat datang!');
+                return redirect('/owner/dashboard')->with('success', $welcomeMessage);
             } elseif ($user->role === 'Konsumen') {
-                return redirect('/home')->with('success', 'Selamat datang!');
+                return redirect('/home')->with('success', $welcomeMessage);
             } else {
-                return view('/login');
+                return redirect('/login')->with('error', 'Role tidak dikenali');
             }
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah']);
+        return back()->with('error', 'Email atau password salah');
     }
 
     public function logout() {

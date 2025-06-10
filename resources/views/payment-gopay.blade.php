@@ -21,7 +21,7 @@
 
             <div class="mt-3 mb-2">
                 <a href="{{ asset('img/gopay-pay.png') }}" download="gopay-qr.png" class="btn btn-outline-primary">
-                    Download Gambar QR
+                    Download QR
                 </a>
             </div>
 
