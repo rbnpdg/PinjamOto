@@ -47,6 +47,10 @@ class mobilController extends Controller
 
         $mobil->update($request->all());
         return redirect()->route('mobil-show')->with('success', 'Data mobil berhasil diupdate');
+
+           $pesananAktif = Auth::check() ? Auth::user()->hasActiveOrder() : false;
+
+        return view('user.katalog', compact('mobil', 'pesananAktif'));
     }
 
     public function destroy(Mobil $mobil)
