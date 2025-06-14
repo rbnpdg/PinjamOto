@@ -14,6 +14,56 @@ class konsumenController extends Controller
         return view('konsumen-home', compact('mobil'));
     }
 
+    public function kontak()
+    {
+        return view('konsumen-kontak');
+    }
+
+    public function historiShow()
+    {
+        $user = auth()->user();
+
+        $transaksis = Transaksi::where('user_id', $user->id)
+            ->with('mobil')
+            ->latest()
+            ->get();
+
+        return view('konsumen-histori', compact('transaksis'));
+    }
+
+    public function filterHistori(Request $request)
+    {
+        $user = auth()->user();
+
+        $query = Transaksi::where('user_id', $user->id);
+
+        // Filter waktu
+        if ($request->filled('waktu')) {
+            $query->where('tanggal_transaksi', '>=', now()->subDays($request->waktu));
+        }
+
+        // Filter metode pembayaran
+        if ($request->filled('metode')) {
+            $query->where('metode_pembayaran', $request->metode);
+        }
+
+        // Filter status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $query->whereHas('mobil', function ($q) use ($request) {
+                $q->where('nama', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $transaksis = $query->latest()->get();
+
+        return view('konsumen-histori', compact('transaksis'));
+    }
+
     public function katalog()
     {
         
@@ -36,28 +86,35 @@ class konsumenController extends Controller
         return view('konsumen-keranjang-add', compact('mobil'));
     }
 
-
-    public function tambahKeranjang(Request $request, $id)
-    {
-        $mobil = Mobil::findOrFail($id);
-
-        $cart = session()->get('cart', []);
-
-        if (isset($cart[$id])) {
-            $cart[$id]['jumlah'] += 1;
-        } else {
-            $cart[$id] = [
-                'nama' => $mobil->nama,
-                'gambar' => $mobil->gambar,
-                'harga' => $mobil->hargasewa,
-                'jumlah' => 1,
-            ];
-        }
-
-        session()->put('cart', $cart);
-
-        return redirect()->route('katalog-show')->with('success', 'Mobil ditambahkan ke keranjang!');
+    public function editProfile() {
+        return view('konsumen-edit-profile');
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email,' . $user->id,
+            'username' => 'required|string|max:255|unique:user,username,' . $user->id,
+            'telepon' => 'required|string|max:20|unique:user,telepon,' . $user->id,
+            'alamat' => 'required|string|max:255',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user->update([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'username' => $request->username,
+            'telepon' => $request->telepon,
+            'alamat' => $request->alamat,
+            'password' => $request->password ? bcrypt($request->password) : $user->password,
+        ]);
+
+        return redirect()->route('user-home')->with('success', 'Profil berhasil diperbarui.');
+    }
+
 
     public function filter(Request $request)
     {

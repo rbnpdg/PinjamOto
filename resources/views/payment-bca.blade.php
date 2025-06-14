@@ -1,5 +1,7 @@
 @extends('layout/user-nav')
 
+@section('title', 'Payment BCA')
+
 @section('content')
 <div class="container d-flex justify-content-center align-items-center py-5">
     <div class="card w-50 shadow p-4">
@@ -20,7 +22,7 @@
         </table>
 
         <div class="text-center">
-            <p class="mb-2">Silakan transfer ke rekening berikut sejumlah <b>Rp {{ number_format($total_biaya, 0, ',', '.') }},-</b></p>
+            <p class="mb-2">Silahkan transfer ke rekening berikut sejumlah <b>Rp {{ number_format($total_biaya, 0, ',', '.') }},-</b></p>
             
             <div class="input-group mb-3 justify-content-center">
                 <input type="text" class="form-control text-center" id="rekening" value="182788478" readonly style="max-width: 200px;">
@@ -54,7 +56,7 @@
                 icon: 'success',
                 title: 'Disalin!',
                 text: 'Nomor rekening berhasil disalin.',
-                timer: 1500,
+                timer: 900,
                 showConfirmButton: false
             });
         }).catch(() => {

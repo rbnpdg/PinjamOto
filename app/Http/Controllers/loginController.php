@@ -30,6 +30,10 @@ class loginController extends Controller
         return view('login');
     }
 
+    public function showRegist() {
+        return view('register');
+    }
+
     public function login(Request $request) {
         $request->validate([
             'email' => 'required|email',
@@ -56,6 +60,30 @@ class loginController extends Controller
         }
 
         return back()->with('error', 'Email atau password salah');
+    }
+
+    public function storeRegist(Request $request)
+    {
+        $request->validate([
+            'nama'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:user,email',
+            'username' => 'required|string|max:255|unique:user,username',
+            'telepon'  => 'nullable|string|min:11|max:15|unique:user,telepon',
+            'alamat'   => 'nullable|string',
+            'password' => 'required|string|min:6',
+        ]);
+
+        User::create([
+            'nama'     => $request->nama,
+            'email'    => $request->email,
+            'username' => $request->username,
+            'telepon'  => $request->telepon,
+            'alamat'   => $request->alamat,
+            'password' => Hash::make($request->password),
+            'role'     => 'Konsumen',
+        ]);
+
+        return redirect()->route('login-show')->with('success', 'Registrasi berhasil! Silakan login.');
     }
 
     public function logout() {

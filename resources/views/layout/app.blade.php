@@ -8,11 +8,12 @@
         <title>Selamat Datang</title>
         <!-- Bootstrap 5 CDN -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-...hash..." crossorigin="anonymous" referrerpolicy="no-referrer" />
         <!-- Sweetalert -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <style>
             body {
-                background-image: url('https://images.unsplash.com/photo-1621808752171-531c30903889?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+                background-image: url("{{ asset('img/login-bg.png') }}");
                 background-size: cover;
                 background-position: center;
                 height: 100vh;
@@ -28,21 +29,13 @@
             .form-control {
                 background-color: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(3px);
-                border: none;
-                color: #fff;
+                color: #333;
                 border-radius: 5px;
                 height: 45px;
             }
 
             .form-control::placeholder {
                 color: rgba(255, 255, 255, 0.7);
-            }
-
-            .form-control:focus {
-                background-color: rgba(255, 255, 255, 0.2);
-                backdrop-filter: blur(5px);
-                box-shadow: none;
-                border: none;
             }
 
             h2 {
@@ -61,20 +54,6 @@
                 margin: 0 auto 20px;
                 max-width: 70%;
                 height: auto;
-            }
-
-            .btn {
-                background-color: #1c1c1c;
-                color: #fff;
-                border: none;
-                font-weight: bold;
-                transition: background-color 0.3s, color 0.3s;
-            }
-
-            .btn:hover {
-                background-color: #fff;
-                color: #1c1c1c;
-                border: none;
             }
 
             .login-container {
@@ -108,6 +87,53 @@
         .login-box .btn-primary {
             background-color:rgb(188, 188, 188);
             border: none;
+        }
+
+                .bg-left {
+            background: url('{{ asset('img/login-bg.png') }}') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+        }
+        .form-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff;
+        }
+        .form-wrapper {
+            width: 100%;
+            max-width: 340px;
+            padding: 20px;
+        }
+        .form-wrapper img {
+            width: 80px;
+            display: block;
+            margin: 0 auto 16px auto;
+        }
+        .form-wrapper h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        b {
+            color: #cc5200;
+            transition: color 0.3s ease;
+        }
+
+        b:hover {
+            color:rgb(234, 148, 91);
+            transition: color 0.3s ease;
+        }
+
+        .btn-daftar {
+            transition: all 0.3s ease;
+        }
+
+        .btn-daftar:hover {
+            background-color: transparent;
+            color: #dc3545;
+            border: 1px solid #dc3545;
         }
     </style>
 </head>

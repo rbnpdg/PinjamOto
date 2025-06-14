@@ -30,9 +30,15 @@
             <textarea name="alamat" id="alamat" class="form-control" required>{{ old('alamat') }}</textarea>
         </div>
 
+
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" name="password" id="password" class="form-control" required>
+            <div class="input-group">
+                <input type="password" class="form-control" id="password" name="password" required>
+                <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
+                    <i class="fa fa-eye-slash" id="icon-password"></i>
+                </span>
+            </div>
         </div>
 
         <div class="mb-3">
@@ -48,6 +54,24 @@
         <a href="{{ route('user-show') }}" class="btn btn-danger">Batal</a>
         <button type="submit" class="btn btn-primary">Simpan</button>
     </form>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const passwordInput = document.getElementById('password');
+            const toggle = document.getElementById('toggle-password');
+            const icon = document.getElementById('icon-password');
+
+            if (toggle) {
+                toggle.addEventListener('click', function () {
+                    const isPassword = passwordInput.getAttribute('type') === 'password';
+                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                    icon.classList.toggle('fa-eye');
+                    icon.classList.toggle('fa-eye-slash');
+                });
+            }
+        });
+    </script>
+
     @if ($errors->any())
     <script>
         Swal.fire({
@@ -58,18 +82,5 @@
         });
     </script>
     @endif
-
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    // Show the error modal if there are any validation errors
-    @if ($errors->any())
-        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'), {
-            keyboard: false
-        });
-        errorModal.show();
-    @endif
-</script>
 @endsection

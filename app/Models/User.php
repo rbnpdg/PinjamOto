@@ -55,4 +55,14 @@ class User extends Authenticatable
             ? Hash::make($value)
             : $value;
     }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(Mobil::class, 'favorites', 'user_id', 'mobil_id');
+    }
+
+    public function hasActiveOrder()
+    {
+        return false;
+    }
 }

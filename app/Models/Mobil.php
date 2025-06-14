@@ -10,4 +10,9 @@ class mobil extends Model
     use HasFactory;
     protected $table = 'mobil';
     protected $fillable = ['gambar', 'nama', 'tahun', 'tipe', 'tnkb', 'kapasitas', 'transmisi', 'bbm', 'hargasewa', 'status',];
+
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'mobil_id', 'user_id');
+    }
 }

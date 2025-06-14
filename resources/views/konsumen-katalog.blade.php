@@ -64,7 +64,7 @@
                             <p class="card-text mb-1"><strong>BBM:</strong> {{ $item->bbm }}</p>
                             <p class="card-text mb-1"><strong>Kapasitas:</strong> {{ $item->kapasitas }} orang</p>
                             <p class="card-text fw-bold text-danger">Rp {{ number_format($item->hargasewa, 0, ',', '.') }} / hari</p>
-                            <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+                            <div class="card-footer bg-transparent border-0 d-flex justify-content-between px-0 pb-0 mt-auto"> {{-- Added mt-auto here --}}
                                 @auth
                                     @if ($pesananAktif)
                                         <button class="btn btn-outline-secondary w-100 rounded-end-0" disabled>Selesaikan Transaksi Anda</button>
@@ -74,14 +74,20 @@
                                 @else
                                     <a href="{{ route('login-show') }}" class="btn btn-outline-primary w-100 rounded-end-0">Login untuk Sewa</a>
                                 @endauth
-
-                                <form action="{{ route('tambah-keranjang', $item->id) }}" method="POST">
+                                <form action="{{ route('toggle-favorit', $item->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-outline-primary rounded-start-0" {{ $pesananAktif ? 'disabled' : '' }}>
-                                        <i class="bi bi-cart-plus"></i>
+                                    <button type="submit" class="btn btn-outline-danger rounded-start-0" {{ Auth::check() && $pesananAktif ? 'disabled' : '' }}>
+                                        @auth
+                                            @if (Auth::user()->favorites->contains($item->id))
+                                                <i class="bi bi-heart-fill text-danger"></i>
+                                            @else
+                                                <i class="bi bi-heart"></i>
+                                            @endif
+                                        @else
+                                            <i class="bi bi-heart"></i>
+                                        @endauth
                                     </button>
                                 </form>
-
                             </div>
                         </div>
                     </div>

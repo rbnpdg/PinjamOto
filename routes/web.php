@@ -7,6 +7,7 @@ use App\Http\Controllers\userController;
 use App\Http\Controllers\transaksiController;
 use App\Http\Controllers\ownerController;
 use App\Http\Controllers\konsumenController;
+use App\Http\Controllers\FavoriteController;
 
 Route::get('/', function () {
     return view('konsumen-home');
@@ -17,8 +18,11 @@ Route::get('/transaksi/{id}/bayar', [TransaksiController::class, 'bayarDuitku'])
 
 Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
 Route::get('/katalog', [konsumenController::class, 'katalog'])->name('mobil-katalog');
+Route::get('/kontak', [konsumenController::class, 'kontak'])->name('kontak');
 
 Route::get('/login', [loginController::class, 'show'])->name('login-show');
+Route::get('/register', [loginController::class, 'showRegist'])->name('register-show');
+Route::post('/register', [loginController::class, 'storeRegist'])->name('register-store');
 Route::post('/login/session', [loginController::class, 'login']);
 Route::get('/logout', [loginController::class, 'logout'])->name('logout');
 
@@ -55,8 +59,6 @@ Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
 });
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
-    Route::get('/keranjang/tambah/{id}', [konsumenController::class, 'tambahkeranjangShow'])->name('tambah-keranjang');
-    Route::post('/keranjang/store/{id}', [konsumenController::class, 'tambahKeranjang'])->name('keranjang-add');
     Route::get('/filtered', [konsumenController::class, 'filter'])->name('katalog-filter');
     Route::get('/pesan-{id}', [konsumenController::class, 'pesanShow'])->name('mobil-pesan');
 
@@ -64,6 +66,13 @@ Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
     Route::get('/bayar/{metode}', [transaksiController::class, 'showPayment'])->name('pembayaran.show');
     Route::post('/transaksi/konfirmasi-bayar', [TransaksiController::class, 'konfirmasiBayar'])->name('transaksi.konfirmasiBayar');
 
+    Route::post('/favorites/{mobil}/toggle', [FavoriteController::class, 'toggleFavorite'])->name('toggle-favorit');
+    Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorite');
+
+    Route::get('/user/edit', [konsumenController::class, 'editProfile'])->name('edit-show');
+    Route::put('/profil/update', [konsumenController::class, 'updateProfile'])->name('update-profile');
+    Route::get('user/histori-transaksi', [konsumenController::class, 'historiShow'])->name('histori-show');
+    Route::get('user/histori-transaksi/filtered', [konsumenController::class, 'filterHistori'])->name('filtered-histori');
 }); 
 
 
