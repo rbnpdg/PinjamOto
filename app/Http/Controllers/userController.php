@@ -71,4 +71,33 @@ class userController extends Controller
 
         return redirect()->route('user-show')->with('success', 'Data user berhasil diupdate');
     }
+
+    public function editShow() {
+        return view('admin-edit-profile');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email,' . $user->id,
+            'username' => 'required|string|max:255|unique:user,username,' . $user->id,
+            'telepon' => 'required|string|max:20|unique:user,telepon,' . $user->id,
+            'alamat' => 'required|string|max:255',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $user->update([
+            'nama' => $request->nama,
+            'email' => $request->email,
+            'username' => $request->username,
+            'telepon' => $request->telepon,
+            'alamat' => $request->alamat,
+            'password' => $request->password ? bcrypt($request->password) : $user->password,
+        ]);
+
+        return redirect()->route('admin-show')->with('success', 'Profil berhasil diperbarui.');
+    }
 }

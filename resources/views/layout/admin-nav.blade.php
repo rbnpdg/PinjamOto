@@ -24,6 +24,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <!-- CSS Files -->
   <link href="{{ asset('css/argon-dashboard.css?v=2.1.0') }}" rel="stylesheet" />
+  <style>
+    .dropdown-toggle::after {
+        display: none !important;
+    }
+  </style>
 </head>
 
 <body class="g-sidenav-show   bg-gray-100">
@@ -71,14 +76,6 @@
             <span class="nav-link-text ms-1">User</span>
           </a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link " href="{{ route('logout') }}">
-            <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-              <i class="fa-solid fa-right-from-bracket" style="font-size: 20px; color: #3b4662;"></i>
-            </div>
-            <span class="nav-link-text ms-1">Logout</span>
-          </a>
-        </li>
       </ul>
     </div>
   </aside>
@@ -94,17 +91,28 @@
           <h6 class="font-weight-bolder text-white mb-0">Kendaraan</h6>
         </nav>
         <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-          <div class="ms-md-auto pe-md-3 d-flex align-items-center">
-            <div class="input-group">
-              <span class="input-group-text text-body"><i class="fas fa-search" aria-hidden="true"></i></span>
-              <input type="text" class="form-control" placeholder="Type here...">
-            </div>
-          </div>
-          <ul class="navbar-nav  justify-content-end">
-            <li class="nav-item d-flex align-items-center">
-              <a href="javascript:;" class="nav-link text-white font-weight-bold px-0">
-                <img src="{{ asset('img/profile.png') }}" width="40px" class="navbar-brand-img h-100" alt="main_logo">
-              </a>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item dropdown">
+              <div class="d-flex align-items-center">
+                <a class="nav-link dropdown-toggle text-white font-weight-bold px-0" href="#" id="navbarDropdown"
+                    role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="fw-semibold ms-2 me-2">Halo, {{ Auth::user()->nama }}!</span>
+                  <img src="{{ asset('img/profile.png') }}" width="40px" class="rounded-circle" alt="main_logo">
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+                  <li>
+                    <a class="dropdown-item" href="{{ route('admin-edit') }}">
+                      <i class="fa-solid fa-user-pen me-2"></i> Edit Profil
+                    </a>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <a class="dropdown-item text-danger" href="{{ route('logout') }}">
+                      <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                    </a>
+                  </li>
+                </ul>
+              </div>
             </li>
           </ul>
         </div>

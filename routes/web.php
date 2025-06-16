@@ -41,6 +41,9 @@ Route::middleware(['auth', 'cekRole:Admin'])->group(function () {
     Route::get('/user/edit/{user}', [userController::class, 'edit'])->name('user-edit');
     Route::put('/user/update/{user}', [userController::class, 'update'])->name('user-update');
 
+    Route::get('/admin/edit-profile', [userController::class, 'editShow'])->name('admin-edit');
+    Route::put('/admin/profil-update', [userController::class, 'updateProfile'])->name('admin-update');
+
     Route::get('/transaksi', [TransaksiController::class, 'show'])->name('transaksi-show');
     Route::get('/transaksi/tambah', [TransaksiController::class, 'tambah'])->name('transaksi-add');
     Route::get('/transaksi/edit', [TransaksiController::class, 'edit'])->name('transaksi-edit');
@@ -56,6 +59,8 @@ Route::middleware(['auth', 'cekRole:Owner'])->group(function () {
     Route::get('/owner/dashboard', [loginController::class, 'ownerDash'])->name('owner-dash');
     Route::get('/owner/mobil', [ownerController::class, 'show'])->name('mobil-owner');
     Route::get('/owner/transaksi', [ownerController::class, 'trShow'])->name('transaksi-owner');
+    Route::get('/owner/edit-profile', [ownerController::class, 'editShow'])->name('owner-edit');
+    Route::put('/owner/profil-update', [ownerController::class, 'updateProfile'])->name('owner-update');
 });
 
 Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
