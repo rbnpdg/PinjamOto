@@ -12,9 +12,61 @@ use Midtrans\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
+use Midtrans\Notification;
+use Midtrans\Config as MidtransConfig;
 
 class transaksiController extends Controller
 {
+    public function __construct()
+    {
+        MidtransConfig::$serverKey = config('midtrans.server_key');
+        MidtransConfig::$isProduction = config('midtrans.is_production');
+        MidtransConfig::$isSanitized = true;
+        MidtransConfig::$is3ds = true;
+    }
+
+    public function handle(Request $request)
+    {
+        $serverKey = config('midtrans.server_key');
+        $hashed = hash('sha512',
+            $request->order_id .
+            $request->status_code .
+            $request->gross_amount .
+            $serverKey
+        );
+
+        if ($hashed != $request->signature_key) {
+            return response(['message' => 'Invalid signature'], 403);
+        }
+
+        // Ambil ID transaksi dari order_id format: TRX-{id}-{timestamp}
+        $order_id_parts = explode('-', $request->order_id);
+        $transaksi_id = $order_id_parts[1];
+
+        $transaksi = Transaksi::find($transaksi_id);
+        if (!$transaksi) {
+            return response(['message' => 'Transaksi tidak ditemukan'], 404);
+        }
+
+        $transactionStatus = $request->transaction_status;
+
+        if ($transactionStatus === 'settlement') {
+            $transaksi->status = 'Berjalan';
+            $transaksi->status_payment = 'Dibayar';
+        } elseif (in_array($transactionStatus, ['cancel', 'expire', 'deny'])) {
+            $transaksi->status = 'Dibatalkan';
+            $transaksi->status_payment = 'Ditolak';
+        } elseif ($transactionStatus === 'pending') {
+            $transaksi->status_payment = 'Menunggu Pembayaran';
+        } else {
+            $transaksi->status_payment = ucfirst($transactionStatus);
+        }
+
+        $transaksi->save();
+
+        return response(['message' => 'Callback diterima'], 200);
+    }
+
     public function show()
     {
         $transaksis = Transaksi::with(['user', 'mobil'])->latest()->get();
@@ -128,6 +180,82 @@ class transaksiController extends Controller
             'total' => $totalHarga,
         ]);
     }
+
+    public function storeMidtrans(Request $request)
+    {
+        $validated = $request->validate([
+            'mobil_id' => 'required|exists:mobil,id',
+            'tanggal_mulai' => 'required|date|after_or_equal:today',
+            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
+        ]);
+
+        $user = auth()->user();
+        $mobil = Mobil::findOrFail($request->mobil_id);
+
+        $mulai = Carbon::parse($request->tanggal_mulai);
+        $selesai = Carbon::parse($request->tanggal_selesai);
+        $lamaHari = $mulai->diffInDays($selesai) + 1;
+        $total = $mobil->hargasewa * $lamaHari;
+
+        // Buat Transaksi (belum dibayar)
+        $transaksi = Transaksi::create([
+            'user_id' => $user->id,
+            'mobil_id' => $mobil->id,
+            'tanggal_mulai' => $request->tanggal_mulai,
+            'tanggal_selesai' => $request->tanggal_selesai,
+            'total_biaya' => $total,
+            'status' => 'Menunggu',
+            'status_payment' => 'Menunggu',
+            'tanggal_transaksi' => now(),
+            'metode_pembayaran' => 'midtrans',
+        ]);
+
+        return redirect()->route('transaksi.bayar.midtrans', ['id' => $transaksi->id]);
+    }
+
+    public function bayarMidtrans(Request $request, $id)
+    {
+        $transaksi = Transaksi::with('user', 'mobil')->findOrFail($id);
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => 'TRX-' . $transaksi->id . '-' . time(),
+                'gross_amount' => $transaksi->total_biaya,
+            ],
+            'customer_details' => [
+                'first_name' => $transaksi->user->name,
+                'email' => $transaksi->user->email,
+            ],
+            'item_details' => [
+                [
+                    'id' => $transaksi->mobil->id,
+                    'price' => $transaksi->mobil->hargasewa,
+                    'quantity' => \Carbon\Carbon::parse($transaksi->tanggal_mulai)->diffInDays($transaksi->tanggal_selesai) + 1,
+                    'name' => 'Sewa Mobil ' . $transaksi->mobil->nama
+                ]
+            ],
+            'callbacks' => [
+                'finish' => route('mobil-katalog'),  // ⬅️ URL redirect setelah selesai bayar
+            ]
+        ];
+
+        $snapToken = \Midtrans\Snap::getSnapToken($params);
+
+        $tanggal_mulai = $transaksi->tanggal_mulai;
+        $tanggal_selesai = $transaksi->tanggal_selesai;
+        $durasi = now()->parse($tanggal_mulai)->diffInDays(now()->parse($tanggal_selesai)) + 1;
+
+        return view('payment-midtrans', [
+            'user' => $transaksi->user,
+            'mobil' => $transaksi->mobil,
+            'tanggal_mulai' => $tanggal_mulai,
+            'tanggal_selesai' => $tanggal_selesai,
+            'durasi' => $durasi,
+            'total' => $transaksi->total_biaya,
+            'snapToken' => $snapToken,
+        ]);
+    }
+
 
     public function showPayment($metode, Request $request)
     {

@@ -145,7 +145,7 @@ class konsumenController extends Controller
 
     public function pesanShow($id) {
         $mobil = Mobil::findOrFail($id);
-        return view('konsumen-pesan', compact('mobil'));
+        return view('konsumen-pesanmid', compact('mobil'));
     }
 
 }
