@@ -58,6 +58,10 @@
        .dropdown-toggle::after {
             display: none !important;
         }
+
+        footer {
+            background-color: #DC3545;
+        }
     </style>
 </head>
 <body>
@@ -108,8 +112,8 @@
         @yield('content')
     </main>
 
-    <footer class="bg-light text-center py-4 mt-auto">
-        <p class="mb-0 text-muted">&copy; {{ date('Y') }} PinjamOTO - All rights reserved.</p>
+    <footer class="text-center text-white py-4 mt-auto" style="background-color: #DC3545;">
+        <p class="mb-3 mt-0">&copy; {{ date('Y') }} PinjamOTO - All rights reserved.</p>
     </footer>
     @yield('scripts')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

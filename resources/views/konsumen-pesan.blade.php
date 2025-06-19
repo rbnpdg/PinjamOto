@@ -25,13 +25,13 @@
             {{-- Tanggal Mulai --}}
             <div class="mb-3">
                 <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-                <input type="date" name="tanggal_mulai" class="form-control" required>
+                <input type="date" name="tanggal_mulai" class="form-control" min="{{ date('Y-m-d') }}" required>
             </div>
 
             {{-- Tanggal Selesai --}}
             <div class="mb-3">
                 <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
-                <input type="date" name="tanggal_selesai" class="form-control" required>
+                <input type="date" name="tanggal_selesai" class="form-control" min="{{ date('Y-m-d') }}" required>
             </div>
 
             <div class="d-flex justify-content-between">
@@ -45,19 +45,24 @@
                 const mulai = document.querySelector('input[name="tanggal_mulai"]');
                 const selesai = document.querySelector('input[name="tanggal_selesai"]');
 
+                function parseDate(input) {
+                    const parts = input.split("-");
+                    return new Date(parts[0], parts[1] - 1, parts[2]); // yyyy-mm-dd
+                }
+
                 form.addEventListener('submit', function (e) {
                     const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Set ke awal hari
+                    today.setHours(0, 0, 0, 0); // reset jam
 
-                    const tglMulai = new Date(mulai.value);
-                    const tglSelesai = new Date(selesai.value);
+                    const tglMulai = parseDate(mulai.value);
+                    const tglSelesai = parseDate(selesai.value);
 
-                    if (tglMulai < today) {
+                    if (tglMulai < today || tglSelesai < today) {
                         e.preventDefault();
                         Swal.fire({
                             icon: 'warning',
                             title: 'Tanggal tidak valid',
-                            text: 'Tanggal mulai minimal adalah hari ini.',
+                            text: 'Tanggal mulai dan selesai minimal adalah hari ini.',
                             confirmButtonText: 'OK'
                         });
                         return;
@@ -74,8 +79,7 @@
                     }
                 });
             });
-        </script>
-
+            </script>
 
         @if ($errors->any())
             <script>

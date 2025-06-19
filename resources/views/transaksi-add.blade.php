@@ -34,13 +34,13 @@
         {{-- Tanggal Mulai --}}
         <div class="mb-3">
             <label for="tanggal_mulai" class="form-label">Tanggal Mulai</label>
-            <input type="date" name="tanggal_mulai" class="form-control" required>
+            <input type="date" name="tanggal_mulai" class="form-control" min="{{ date('Y-m-d') }}" required>
         </div>
 
         {{-- Tanggal Selesai --}}
         <div class="mb-3">
             <label for="tanggal_selesai" class="form-label">Tanggal Selesai</label>
-            <input type="date" name="tanggal_selesai" class="form-control" required>
+            <input type="date" name="tanggal_selesai" class="form-control" min="{{ date('Y-m-d') }}" required>
         </div>
 
         {{-- Metode Pembayaran --}}

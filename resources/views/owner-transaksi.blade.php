@@ -33,10 +33,10 @@
             <div class="col-md-2">
                 <select name="metode" class="form-select">
                     <option value="">Metode Pembayaran</option>
-                    <option value="bni" {{ request('metode') == 'gopay' ? 'selected' : '' }}>Gopay</option>
-                    <option value="bca" {{ request('metode') == 'bca' ? 'selected' : '' }}>Transfer BCA</option>
-                    <option value="bni" {{ request('metode') == 'bni' ? 'selected' : '' }}>Transfer BNI</option>
-                    <option value="cod" {{ request('metode') == 'cod' ? 'selected' : '' }}>Cash</option>
+                    <option value="Gopay" {{ request('metode') == 'gopay' ? 'selected' : '' }}>Gopay</option>
+                    <option value="BCA" {{ request('metode') == 'bca' ? 'selected' : '' }}>Transfer BCA</option>
+                    <option value="BNI" {{ request('metode') == 'bni' ? 'selected' : '' }}>Transfer BNI</option>
+                    <option value="Cash   e" {{ request('metode') == 'cod' ? 'selected' : '' }}>Cash</option>
                 </select>
             </div>
 
@@ -85,7 +85,7 @@
                             <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_transaksi)->format('d M Y') }}</td>
                             <td>{{ \Carbon\Carbon::parse($transaksi->tanggal_mulai)->diffInDays($transaksi->tanggal_selesai) }} hari</td>
                             <td>Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}</td>
-                            <td>{{ ucfirst($transaksi->metode_pembayaran) ?? '-' }}</td>
+                            <td style="text-transform: uppercase;">{{ ucfirst($transaksi->metode_pembayaran) ?? '-' }}</td>
                             <td>
                                 <span class="badge bg-{{ 
                                     $transaksi->status == 'Berjalan' ? 'warning' : 

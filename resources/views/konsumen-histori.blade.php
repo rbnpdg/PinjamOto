@@ -1,7 +1,9 @@
 @extends('layout/user-nav')
 
 @section('title', 'Histori Transaksi')
-
+@php
+    use Carbon\Carbon;
+@endphp
 @section('content')
     <div class="container my-5">
         <div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
@@ -84,7 +86,7 @@
                                     <strong>Status</strong>
                                     <span class="badge bg-{{ 
                                         $transaksi->status == 'Selesai' ? 'success' : 
-                                        ($transaksi->status == 'Diproses' ? 'warning' : 
+                                        ($transaksi->status == 'Berjalan' ? 'warning' : 
                                         ($transaksi->status == 'Dibatalkan' ? 'danger' : 'dark')) }}">
                                         {{ $transaksi->status ?? 'Tidak Diketahui' }}
                                     </span>
@@ -140,22 +142,19 @@
                                             <td class="py-2 fw-semibold">Metode Pembayaran</td>
                                             <td class="py-2">: {{ ucfirst($transaksi->metode_pembayaran) }}</td>
                                         </tr>
+                                        @php
+                                            $mulai = Carbon::parse($transaksi->tanggal_mulai);
+                                            $selesai = Carbon::parse($transaksi->tanggal_selesai);
+                                            $durasi = $mulai->diffInDays($selesai) + 1;
+                                        @endphp
+
                                         <tr>
                                             <td class="py-2 fw-semibold">Durasi Sewa</td>
-                                            <td class="py-2">: {{ $transaksi->lama_sewa ?? '-' }} hari</td>
+                                            <td class="py-2">: {{ $durasi }} hari</td>
                                         </tr>
                                         <tr>
                                             <td class="py-2 fw-semibold">Total Harga</td>
-                                            <td class="py-2">: Rp{{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 fw-semibold">Lokasi Pengambilan</td>
-                                            <td class="py-2">: {{ $transaksi->lokasi_pengambilan ?? '-' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="py-2 fw-semibold">Catatan</td>
-                                            <td class="py-2">: {{ $transaksi->catatan ?? '-' }}</td>
-                                        </tr>
+                                            <td class="py-2">: Rp{{ number_format($transaksi->total_biaya, 0, ',', '.') }}</td>
                                     </table>
                                 </div>
                                 <div class="modal-footer border-top-0">

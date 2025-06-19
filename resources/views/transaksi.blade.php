@@ -21,6 +21,7 @@
                     <th>Tanggal Mulai</th>
                     <th>Tanggal Selesai</th>
                     <th>Biaya</th>
+                    <th>Bukti Pembayaran</th>
                     <th>Status Transaksi</th>
                     <th>Status Pembayaran</th>
                     <th>Aksi</th>
@@ -35,6 +36,32 @@
                         <td>{{ $transaksi->tanggal_mulai }}</td>
                         <td>{{ $transaksi->tanggal_selesai }}</td>
                         <td>Rp {{ number_format($transaksi->total_biaya, 0, ',', '.') }}</td>
+                        <td>
+                            @if ($transaksi->bukti_tf)
+                                <!-- Tombol untuk membuka modal -->
+                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalBukti{{ $transaksi->id }}">
+                                    Lihat
+                                </button>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="modalBukti{{ $transaksi->id }}" tabindex="-1" aria-labelledby="modalLabel{{ $transaksi->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="modalLabel{{ $transaksi->id }}">Bukti Pembayaran</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                                            </div>
+                                            <div class="modal-body text-center">
+                                                <img src="{{ asset('bukti_tf/' . $transaksi->bukti_tf) }}" alt="Bukti Transfer" class="img-fluid d-block mx-auto mb-3">
+                                                <button type="button" class="btn btn-outline-danger d-block mx-auto" data-bs-dismiss="modal">Tutup</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <small>Tidak ada gambar</small>
+                            @endif
+                        </td>
                         <td>
                             <span class="badge bg-{{ 
                                 $transaksi->status == 'Berjalan' ? 'warning' : 

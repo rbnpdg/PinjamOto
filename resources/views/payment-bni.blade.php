@@ -29,14 +29,19 @@
                 </button>
             </div>
 
-            <form id="formBayar" action="{{ route('transaksi.konfirmasiBayar') }}" method="POST">
+            <form id="formBayar" action="{{ route('transaksi.konfirmasiBayar') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="user_id" value="{{ $user->id }}">
                 <input type="hidden" name="mobil_id" value="{{ $mobil->id }}">
                 <input type="hidden" name="tanggal_mulai" value="{{ $tanggal_mulai }}">
                 <input type="hidden" name="tanggal_selesai" value="{{ $tanggal_selesai }}">
                 <input type="hidden" name="total_biaya" value="{{ $total_biaya }}">
-                <input type="hidden" name="metode_pembayaran" value="gopay">
+                <input type="hidden" name="metode_pembayaran" value="bni">
+
+                <div class="mb-3">
+                    <label for="bukti_tf" class="form-label">Bukti Pembayaran</label>
+                    <input type="file" class="form-control" name="bukti_tf" id="bukti_tf" accept=".jpg,.jpeg,.png" required>
+                </div>
 
                 <div class="d-flex justify-content-center gap-3 mt-3">
                     <a href="{{ route('mobil-katalog') }}" class="btn btn-outline-danger">Batal</a>

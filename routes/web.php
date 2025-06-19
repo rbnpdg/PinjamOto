@@ -13,9 +13,6 @@ Route::get('/', function () {
     return view('konsumen-home');
 });
 
-Route::post('/midtrans/callback', [transaksiController::class, 'handle']);
-Route::get('/transaksi/{id}/bayar', [TransaksiController::class, 'bayarDuitku'])->name('transaksi.bayar.duitku');
-
 Route::get('/home', [konsumenController::class, 'home'])->name('user-home');
 Route::get('/katalog', [konsumenController::class, 'katalog'])->name('mobil-katalog');
 Route::get('/kontak', [konsumenController::class, 'kontak'])->name('kontak');
@@ -69,9 +66,7 @@ Route::middleware(['auth', 'cekRole:Konsumen'])->group(function () {
 
     Route::post('/transaksi/preview', [TransaksiController::class, 'preview'])->name('transaksi.preview');
     Route::get('/bayar/{metode}', [transaksiController::class, 'showPayment'])->name('pembayaran.show');
-    Route::post('/booking/store', [transaksiController::class, 'storeMidtrans'])->name('booking.store');
     Route::post('/transaksi/konfirmasi-bayar', [TransaksiController::class, 'konfirmasiBayar'])->name('transaksi.konfirmasiBayar');
-    Route::get('/transaksi/bayar/{id}', [transaksiController::class, 'bayarMidtrans'])->name('transaksi.bayar.midtrans');
 
     Route::post('/favorites/{mobil}/toggle', [FavoriteController::class, 'toggleFavorite'])->name('toggle-favorit');
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorite');

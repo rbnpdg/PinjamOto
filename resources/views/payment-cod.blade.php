@@ -30,7 +30,7 @@
                 <input type="hidden" name="tanggal_mulai" value="{{ $tanggal_mulai }}">
                 <input type="hidden" name="tanggal_selesai" value="{{ $tanggal_selesai }}">
                 <input type="hidden" name="total_biaya" value="{{ $total_biaya }}">
-                <input type="hidden" name="metode_pembayaran" value="gopay">
+                <input type="hidden" name="metode_pembayaran" value="cod">
 
                 <div class="d-flex justify-content-center gap-3 mt-3">
                     <a href="{{ route('mobil-katalog') }}" class="btn btn-outline-danger">Batal</a>
@@ -40,4 +40,13 @@
         </div>
     </div>
 </div>
+@if ($errors->any())
+    <div class="alert alert-danger mt-3">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
 @endsection
